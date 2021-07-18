@@ -73,7 +73,7 @@ function generateTextAnswer(text) {
 var response;
 
 async function findLabel(padding) {
-    const model = await tf.loadLayersModel('./model/model.json');
+    const model = await tf.loadLayersModel('./chat_model/model.json');
     let result = model.predict(tf.tensor(padding).reshape([-1, 20]));
     const predictedValue = result.arraySync()[0];
     var result_max = Math.max.apply(Math, predictedValue);
