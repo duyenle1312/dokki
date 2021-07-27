@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello from Dokki</title>
+    <link
+      id="favicon"
+      rel="icon"
+      href="https://cdn.glitch.com/b4fc4549-3bff-42c2-9b1f-d0cf53bcfcf0%2FIllustration-by-%D0%92%D0%B8%D0%BE%D0%BB%D0%B5%D1%82%D1%82%D0%B0-%D0%91%D0%B0%D1%80%D1%81%D1%83%D0%BA-from-Ouch_.ico?v=1626709750161"
+      type="image/x-icon"
+    />
+
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- import the webpage's javascript file -->
+    <script src="/script.js" defer></script>
+    <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+  </head>
+  <body>
+    <ul class="pages">
+      <li class="chat page">
+        <div class="container">
+          <h1>Dokki is here 🤖</h1>
+          <div class="conversation">
+            <p class="chat question">
+              Hello!
+            </p>
+          </div>
+          <form class="chatbox">
+            <input
+              type="text"
+              class="chatbox_inputfield"
+              name="chatbox-input"
+              placeholder="Type your answer here!"
+            />
+            <button
+              type="submit"
+              class="chatbox_sendbutton"
+              name="chatbox-send"
+            >
+              Send
+            </button>
+          </form>
+          <p class="footer">
+            What you type isn't stored or sent anywhere.<br />This is just for
+            you. ❤
+          </p>
+        </div>
+      </li>
+
+      <li class="login page">
+        <div class="form">
+          <h3 class="title">Welcome to Dokki</h3>
+          <!--ul class="para">
+          <li>I'm Duyen Le, a college student in Bulgaria and my biggest dedication in life is making Artificial Intelligence to the next level.
+</li>
+          <li>Although the current Dokki beta version is not yet perfect nor fully understands human commands, I'm still working on it to create a chatbot that understands humans' emotions and talks to us like a real human friend, always listening and caring for us.
+</li>
+          <li>If you want to help us create a great product in the future, contact me at duyenle131202@gmail.com
+</li>
+          </ul>
+            <button type="submit" id="submit-form" class="submit_button">
+              Okay, I get it!
+            </button-->
+          <form onsubmit="return false" class="loginForm">
+            <input
+              id="userName"
+              class="inputField"
+              type="text"
+              maxlength="100"
+              placeholder="Type your name"
+            />
+            <input
+              id="email"
+              class="inputField"
+              type="text"
+              maxlength="100"
+              placeholder="Type your email"
+            />
+            <select id="lan" class="selection">
+              <option value="en">English</option>
+              <option value="vi">Vietnamese</option>
+              <option value="other">Other</option>
+            </select>
+
+            <button type="submit" id="submit-form" class="submit_button">
+              Submit
+            </button>
+          </form>
+        </div>
+      </li>
+    </ul>
+    <!-- include the Glitch button to show what the webpage is about and
+          to make it easier for folks to view source and remix 
+    <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
+    <script src="https://button.glitch.me/button.js"></script> -->
+  </body>
+</html>
