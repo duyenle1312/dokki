@@ -1,11 +1,12 @@
 var $loginPage = $(".login.page"); // The login page
 var $chatPage = $(".chat.page"); // The chat page
 var userName, email, language;
+
 // Wait for the button submitted
 $(document).ready(function() {
   //when the <submit> button is clicked
   $(".submit_button").click(function() {
-    //console.log("Submitted!");
+    
     //store the user's entry in a variable
     userName = document.getElementById("userName").value;
     email = document.getElementById("email").value;
@@ -17,6 +18,7 @@ $(document).ready(function() {
     $loginPage.fadeOut();
     $chatPage.show();
     $loginPage.off("click");
+    
   });
 });
 
@@ -69,9 +71,9 @@ function generateTextAnswer(text) {
 
   // Initiate request.
   oXHR.onreadystatechange = reportStatus;
-  if (language == "en") oXHR.open("GET", "./word_index.json", true); // get json file.
-  if (language == "vi") oXHR.open("GET", "./word_index.json", true); // get json file.
-  if (language == "other") oXHR.open("GET", "./word_index.json", true); // get json file.  
+  if (language == "en") oXHR.open("GET", "./data/vietnamese/word_index.json", true); // get json file.
+  if (language == "vi") oXHR.open("GET", "./data/english/word_index.json", true); // get json file.
+  if (language == "other") oXHR.open("GET", "./data/english/word_index.json", true); // get json file.  
   oXHR.send();
 
   function reportStatus() {
@@ -95,9 +97,9 @@ function generateTextAnswer(text) {
 }
 
 async function findLabel(padding) {
-  if (language == 'en') var path = "./model/model.json";
-  if (language == 'vi') var path = "./model/model.json"; 
-  if (language == 'other') var path = "./model/model.json";
+  if (language == 'vi') var path = "./chatbot_model_vi/model.json";
+  if (language == 'en') var path = "./chatbot_model_en/model.json"; 
+  if (language == 'other') var path = "./chatbot_model_en/model.json";
   const model = await tf.loadLayersModel(path);
   let result = model.predict(tf.tensor(padding).reshape([-1, 20]));
   const predictedValue = result.arraySync()[0];
@@ -118,9 +120,9 @@ async function findLabel(padding) {
 
   // Initiate request.
   oXHR.onreadystatechange = reportStatus;
-  if (language == "en") oXHR.open("GET", "./labels_encoder.json", true); // get json file.
-  if (language == "vi") oXHR.open("GET", "./labels_encoder.json", true); // get json file.
-  if (language == "other") oXHR.open("GET", "./labels_encoder.json", true); // get json file.  
+  if (language == "vi") oXHR.open("GET", "./data/vietnamese/labels_encoder.json", true); // get json file.
+  if (language == "en") oXHR.open("GET", "./data/english/labels_encoder.json", true); // get json file.
+  if (language == "other") oXHR.open("GET", "./data/english/labels_encoder.json", true); // get json file.  
   oXHR.send();
 
   function reportStatus() {
@@ -142,7 +144,9 @@ function findResponse(tag) {
 
   // Initiate request.
   oXHR.onreadystatechange = reportStatus;
-  oXHR.open("GET", "./intents.json", true); // get json file.
+  if (language == "vi") oXHR.open("GET", "./data/vietnamese/intents.json", true); // get json file.
+  if (language == "en") oXHR.open("GET", "./data/english/intents.json", true); // get json file.
+  if (language == "other") oXHR.open("GET", "./data/english/intents.json", true); // get json file.  
   oXHR.send();
 
   function reportStatus() {
