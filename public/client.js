@@ -60,7 +60,7 @@ $(document).ready(function() {
   });
 });
 
-// Clear Users Data
+/* Clear Users Data
 clearButton.addEventListener("click", event => {
   fetch("/clearUsers", {})
     .then(res => res.json())
@@ -109,7 +109,7 @@ $(".update_button").click(function() {
     .then(response => {
       console.log(JSON.stringify(response));
     });
-});
+});*/
 
 // Chating functions part
 const form = document.forms[0];
