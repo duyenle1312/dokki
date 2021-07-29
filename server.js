@@ -139,7 +139,7 @@ app.post("/addChat", (request, response) => {
     const cleansedMessage = cleanseString(request.body.chat);
     const cleansedEmail = cleanseString(request.body.email);
     const cleansedTag = cleanseString(request.body.tag);
-    console.log("tag: ", cleansedTag);
+
     let pastdreams = "";
 
     selectRows(cleansedEmail, function(chats) {
