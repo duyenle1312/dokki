@@ -156,28 +156,19 @@ function generateTextAnswer(text) {
   // padding='post', max_len=20, truncate='post'
   let padding = [];
 
-  // Create XMLHttpRequest object to open JSON file of Intents
-  var oXHR = new XMLHttpRequest();
-
-  // Initiate request.
-  oXHR.onreadystatechange = reportStatus;
-  if (language == "vi")
-    oXHR.open("GET", "./data/vietnamese/word_index.json", true); // get json file.
-  if (language == "en")
-    oXHR.open("GET", "./data/english/word_index.json", true); // get json file.
-  if (language == "other")
-    oXHR.open("GET", "./data/english/word_index.json", true); // get json file.
-  oXHR.send();
-
-  function reportStatus() {
-    if (oXHR.readyState == 4) {
-      // Check if request is complete.
-      let data = this.responseText;
-      //console.log(data)
-      var words = JSON.parse(data);
-      //alert(words['my']);
-
-      for (let i = 0; i < 20; i++) {
+  let file = "";
+  if (language == "vi") file = "./word_index_vi.json"; // set file path
+  if (language == "en" || language == "other") file = "./word_index_en.json";
+  
+  fetch(file) //path should be in public
+  .then(response => { 
+        //console.log(response);
+        return response.json();
+  })
+  .then(data => {
+        console.log(data); // already a json object, no need to parse
+        var words = data;
+        for (let i = 0; i < 20; i++) {
         if (i >= corpus.length) padding[i] = 0;
         // if text not in data
         else if (!words.hasOwnProperty(corpus[i])) padding[i] = 1;
@@ -185,8 +176,11 @@ function generateTextAnswer(text) {
       }
 
       findLabel(padding);
-    }
-  }
+  })
+  .catch(err => {
+        // Do something for an error here
+        console.log("Error Reading data " + err);
+  });
 }
 
 async function findLabel(padding) {
@@ -207,67 +201,59 @@ async function findLabel(padding) {
   );
 
   // Read label_encoder file
+  let file = "";
+  if (language == "vi") file = "./labels_encoder_vi.json"; // set file path
+  if (language == "en" || language == "other") file = "./labels_encoder_en.json";
+  
+  fetch(file) //path should be in public
+  .then(response => { 
+        //console.log(response);
+        return response.json();
+  })
+  .then(data => {
+        console.log(data); // already a json object, no need to parse
+        var labels = data;
+        let tag = getKeyByValue(labels, result_index);
 
-  // Create XMLHttpRequest object to open JSON file of Intents
-  var oXHR = new XMLHttpRequest();
-
-  // Initiate request.
-  oXHR.onreadystatechange = reportStatus;
-  if (language == "vi")
-    oXHR.open("GET", "./data/vietnamese/labels_encoder.json", true); // get json file.
-  if (language == "en")
-    oXHR.open("GET", "./data/english/labels_encoder.json", true); // get json file.
-  if (language == "other")
-    oXHR.open("GET", "./data/english/labels_encoder.json", true); // get json file.
-  oXHR.send();
-
-  function reportStatus() {
-    if (oXHR.readyState == 4) {
-      // Check if request is complete.
-      let data = this.responseText;
-      var labels = JSON.parse(data);
-      let tag = getKeyByValue(labels, result_index);
-
-      findResponse(tag);
-    }
-  }
+        findResponse(tag);
+  })
+  .catch(err => {
+        // Do something for an error here
+        console.log("Error Reading data " + err);
+  });
 }
 
 function findResponse(tag) {
   var response;
-  // Create XMLHttpRequest object to open JSON file of Intents
-  var oXHR = new XMLHttpRequest();
-
-  // Initiate request.
-  oXHR.onreadystatechange = reportStatus;
-  if (language == "vi")
-    oXHR.open("GET", "./data/vietnamese/intents.json", true); // get json file.
-  if (language == "en") oXHR.open("GET", "./data/english/intents.json", true); // get json file.
-  if (language == "other")
-    oXHR.open("GET", "./data/english/intents.json", true); // get json file.
-  oXHR.send();
-
-  function reportStatus() {
-    if (oXHR.readyState == 4) {
-      // Check if request is complete.
-      var intents = this.responseText;
-      //console.log(intents)
-
-      var mydata = JSON.parse(intents);
-      //alert(mydata['intents'][0].tag);
-
-      for (let i = 0; i < mydata["intents"].length; i++) {
-        if (mydata["intents"][i].tag == tag) {
-          // change this latter
-          let random = getRandomInt(mydata["intents"][i]["responses"].length);
-          // expected output: an int between 0 and length of responses options
-          console.log(mydata["intents"][i].responses[random]);
-          response = mydata["intents"][i].responses[random];
-          addMessage(response, "question");
+  
+  // Read label_encoder file
+  let file = "";
+  if (language == "vi") file = "./intents_vi.json"; // set file path
+  if (language == "en" || language == "other") file = "./intents_en.json";
+  
+  fetch(file) //path should be in public
+  .then(response => { 
+        //console.log(response);
+        return response.json();
+  })
+  .then(data => {
+        console.log(data); // already a json object, no need to parse
+        var mydata = data;
+        for (let i = 0; i < mydata["intents"].length; i++) {
+          if (mydata["intents"][i].tag == tag) {
+            // change this latter
+            let random = getRandomInt(mydata["intents"][i]["responses"].length);
+            // expected output: an int between 0 and length of responses options
+            console.log(mydata["intents"][i].responses[random]);
+            response = mydata["intents"][i].responses[random];
+            addMessage(response, "question");
+          }
         }
-      }
-    }
-  }
+  })
+  .catch(err => {
+        // Do something for an error here
+        console.log("Error Reading data " + err);
+  });
 }
 
 function askWhy(text) {
