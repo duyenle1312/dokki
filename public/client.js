@@ -76,7 +76,7 @@ $(".add_button").click(function() {
   email = document.getElementById("email").value;
   language = document.getElementById("lan").value;
   
-  // Add new users
+  // Add new chat
   const data = { email: email, chat: language, tag: userName };
 
   fetch("/addChat", {
@@ -166,7 +166,7 @@ function generateTextAnswer(text) {
         return response.json();
   })
   .then(data => {
-        console.log(data); // already a json object, no need to parse
+        //console.log(data); // already a json object, no need to parse
         var words = data;
         for (let i = 0; i < 20; i++) {
         if (i >= corpus.length) padding[i] = 0;
@@ -184,9 +184,9 @@ function generateTextAnswer(text) {
 }
 
 async function findLabel(padding) {
-  if (language == "vi") var path = "./chatbot_model_vi/model.json";
-  if (language == "en") var path = "./chatbot_model_en/model.json";
-  if (language == "other") var path = "./chatbot_model_en/model.json";
+  if (language == "vi") var path = "./model_vi/model.json";
+  if (language == "en") var path = "./model_en/model.json";
+  if (language == "other") var path = "./model_en/model.json";
   const model = await tf.loadLayersModel(path);
   let result = model.predict(tf.tensor(padding).reshape([-1, 20]));
   const predictedValue = result.arraySync()[0];
@@ -194,8 +194,8 @@ async function findLabel(padding) {
   let pie = 3 * (1 / predictedValue.length); // Define the smallest probabilities to get through
   console.log(result_max, 3 * (1 / predictedValue.length));
 
-  if (result_max > pie) console.log("Result is safe!");
-  else console.log("Tag is unknown");
+  //if (result_max > pie) console.log("Result is safe!");
+  //else console.log("Tag is unknown");
   let result_index = predictedValue.indexOf(
     Math.max.apply(Math, predictedValue)
   );
@@ -211,7 +211,7 @@ async function findLabel(padding) {
         return response.json();
   })
   .then(data => {
-        console.log(data); // already a json object, no need to parse
+        //console.log(data); // already a json object, no need to parse
         var labels = data;
         let tag = getKeyByValue(labels, result_index);
 
@@ -237,7 +237,7 @@ function findResponse(tag) {
         return response.json();
   })
   .then(data => {
-        console.log(data); // already a json object, no need to parse
+        //console.log(data); // already a json object, no need to parse
         var mydata = data;
         for (let i = 0; i < mydata["intents"].length; i++) {
           if (mydata["intents"][i].tag == tag) {
@@ -270,6 +270,19 @@ function addMessage(text, classSelector) {
 
   conversation.insertBefore(p, conversation.firstChild);
   conversation.scrollTop = conversation.scrollHeight;
+  
+  // Add new messages to database
+  const data = { email: email, chat: text, tag: classSelector };
+
+  fetch("/addChat", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
 }
 
 /* Make sure the app always fits in the viewport */
