@@ -13,9 +13,9 @@ body {
   max-width: 700px;
   height: 100%;
   margin: 0 auto;
-  margin-left: 50%;
-  transform: translate(-35%);
-  width: 90%;
+  margin-left: 49%;
+  transform: translate(-40%);
+  width: 100%;
 }
 
 /*
@@ -31,7 +31,7 @@ body {
 }
 */
 
-h1 {
+h3 {
   color: #373fff;
 }
 
@@ -219,6 +219,7 @@ ul {
   margin: 0;
   padding: 0;
   width: 100%;
+  justify-content: center;
 }
 
 .page {
