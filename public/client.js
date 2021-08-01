@@ -1,12 +1,14 @@
+//const credentials = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+//const { Firestore } = require("@google-cloud/firestore");
+//const db = new Firestore({ projectId: credentials.project_id, credentials });
+
 var $loginPage = $(".login.page"); // The login page
 var $chatPage = $(".chat.page"); // The chat page
 var userName, email, language;
 
 // run by the browser each time your view template referencing it is loaded
 
-console.log("hello world");
-
-const clearButton = document.querySelector("#clear-dreams");
+//const clearButton = document.querySelector("#clear-dreams");
 
 function ValidateEmail(email) {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -26,9 +28,6 @@ $(document).ready(function() {
         userName = document.getElementById("name").value;
         email = document.getElementById("email").value;
         language = document.getElementById("lan").value;
-        console.log("User name: ", userName);
-        console.log("Email: ", email);
-        console.log("Language: ", language);
 
         // Add new users
         const data = { name: userName, email: email, language: language };
@@ -145,20 +144,34 @@ function addAnswer(text) {
 }
 
 function generateTextAnswer(text) {
-  // Tokenizer
-  let tokenizer = text.split(/\W+/);
-  let corpus = [];
-  for (let i = 0; i < tokenizer.length; i++) {
-    if (tokenizer[i] == "") continue;
-    else corpus[i] = tokenizer[i].toLowerCase();
+  let tokenizer, corpus;
+  let file = "";
+  if (language == "vi") {
+    // Tokenizer
+    text = text.replace(/[&\/\\#`,+()$~%.'":*!?<>{}]/g, '');
+    tokenizer = text.split(" ");
+    corpus = [];
+    for (let i = 0; i < tokenizer.length; i++) {
+      if (tokenizer[i] == "") continue;
+      else corpus[i] = tokenizer[i].toLowerCase();
+    }
+    
+    file = "./word_index_vi.json"; // set file path
   }
+  if (language == "en" || language == "other") {
+    // Tokenizer
+    tokenizer = text.split(/\W+/);
+    corpus = [];
+    for (let i = 0; i < tokenizer.length; i++) {
+      if (tokenizer[i] == "") continue;
+      else corpus[i] = tokenizer[i].toLowerCase();
+    }
 
+    file = "./word_index_en.json";
+  }
+  
   // padding='post', max_len=20, truncate='post'
   let padding = [];
-
-  let file = "";
-  if (language == "vi") file = "./word_index_vi.json"; // set file path
-  if (language == "en" || language == "other") file = "./word_index_en.json";
   
   fetch(file) //path should be in public
   .then(response => { 
@@ -174,7 +187,7 @@ function generateTextAnswer(text) {
         else if (!words.hasOwnProperty(corpus[i])) padding[i] = 1;
         else padding[i] = words[corpus[i]];
       }
-
+      //console.log("Padding: ", padding);
       findLabel(padding);
   })
   .catch(err => {
@@ -244,7 +257,7 @@ function findResponse(tag) {
             // change this latter
             let random = getRandomInt(mydata["intents"][i]["responses"].length);
             // expected output: an int between 0 and length of responses options
-            console.log(mydata["intents"][i].responses[random]);
+            //console.log(mydata["intents"][i].responses[random]);
             response = mydata["intents"][i].responses[random];
             addMessage(response, "question");
           }
