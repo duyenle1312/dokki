@@ -1,27 +1,116 @@
+//const credentials = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+//const { Firestore } = require("@google-cloud/firestore");
+//const db = new Firestore({ projectId: credentials.project_id, credentials });
+
 var $loginPage = $(".login.page"); // The login page
 var $chatPage = $(".chat.page"); // The chat page
 var userName, email, language;
+
+// run by the browser each time your view template referencing it is loaded
+
+//const clearButton = document.querySelector("#clear-dreams");
+
+function ValidateEmail(email) {
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
 
 // Wait for the button submitted
 $(document).ready(function() {
   //when the <submit> button is clicked
   $(".submit_button").click(function() {
-    
-    //store the user's entry in a variable
-    userName = document.getElementById("userName").value;
-    email = document.getElementById("email").value;
-    language = document.getElementById("lan").value;
-    console.log("User name: ", userName);
-    console.log("Email: ", email);
-    console.log("Language: ", language);
+    if (document.getElementById("name").value.length != 0) {
+      if (
+        document.getElementById("email").value.length != 0 &&
+        ValidateEmail(document.getElementById("email").value)
+      ) {
+        //store the user's entry in a variable
+        userName = document.getElementById("name").value;
+        email = document.getElementById("email").value;
+        language = document.getElementById("lan").value;
 
-    $loginPage.fadeOut();
-    $chatPage.show();
-    $loginPage.off("click");
-    
+        // Add new users
+        const data = { name: userName, email: email, language: language };
+
+        // Add a new user to database
+        fetch("/register", {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: { "Content-Type": "application/json" }
+        })
+          .then(res => res.json())
+          .then(response => {
+            let res = JSON.stringify(response);
+            console.log(res);
+            if (res == '"User name accepted!"' || res == '"New user added!"') { // Pay attention to this if the responses change in server.js
+              $loginPage.fadeOut();
+              $chatPage.show();
+              $loginPage.off("click");
+            } else alert(res);
+          });
+
+        /* reset form
+          userName = "";
+          email.value = "";
+          language.value = "";*/
+      }
+      else alert("Error: Invalid email!");
+    }
   });
 });
 
+/* Clear Users Data
+clearButton.addEventListener("click", event => {
+  fetch("/clearUsers", {})
+    .then(res => res.json())
+    .then(response => {
+      console.log("cleared dreams");
+    });
+});
+
+// When "Add Dreams" button is clicked
+$(".add_button").click(function() {
+  //store the user's entry in a variable
+  userName = document.getElementById("name").value;
+  email = document.getElementById("email").value;
+  language = document.getElementById("lan").value;
+  
+  // Add new chat
+  const data = { email: email, chat: language, tag: userName };
+
+  fetch("/addChat", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
+});
+
+// When "Update Data" button is clicked
+$(".update_button").click(function() {
+  //store the user's entry in a variable
+  userName = document.getElementById("name").value;
+  email = document.getElementById("email").value;
+  language = document.getElementById("lan").value;
+  
+  // Add new users
+  const data = { name: userName, email: email, language: language };
+
+  fetch("/updateData", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
+});*/
+
+// Chating functions part
 const form = document.forms[0];
 const inputField = form.elements["chatbox-input"];
 const sendButton = form.elements["chatbox-send"];
@@ -55,51 +144,62 @@ function addAnswer(text) {
 }
 
 function generateTextAnswer(text) {
-  // Tokenizer
-  let tokenizer = text.split(/\W+/);
-  let corpus = [];
-  for (let i = 0; i < tokenizer.length; i++) {
-    if (tokenizer[i] == "") continue;
-    else corpus[i] = tokenizer[i].toLowerCase();
+  let tokenizer, corpus;
+  let file = "";
+  if (language == "vi") {
+    // Tokenizer
+    text = text.replace(/[&\/\\#`,+()$~%.'":*!?<>{}]/g, '');
+    tokenizer = text.split(" ");
+    corpus = [];
+    for (let i = 0; i < tokenizer.length; i++) {
+      if (tokenizer[i] == "") continue;
+      else corpus[i] = tokenizer[i].toLowerCase();
+    }
+    
+    file = "./word_index_vi.json"; // set file path
   }
+  if (language == "en" || language == "other") {
+    // Tokenizer
+    tokenizer = text.split(/\W+/);
+    corpus = [];
+    for (let i = 0; i < tokenizer.length; i++) {
+      if (tokenizer[i] == "") continue;
+      else corpus[i] = tokenizer[i].toLowerCase();
+    }
 
+    file = "./word_index_en.json";
+  }
+  
   // padding='post', max_len=20, truncate='post'
   let padding = [];
-
-  // Create XMLHttpRequest object to open JSON file of Intents
-  var oXHR = new XMLHttpRequest();
-
-  // Initiate request.
-  oXHR.onreadystatechange = reportStatus;
-  if (language == "en") oXHR.open("GET", "./data/vietnamese/word_index.json", true); // get json file.
-  if (language == "vi") oXHR.open("GET", "./data/english/word_index.json", true); // get json file.
-  if (language == "other") oXHR.open("GET", "./data/english/word_index.json", true); // get json file.  
-  oXHR.send();
-
-  function reportStatus() {
-    if (oXHR.readyState == 4) {
-      // Check if request is complete.
-      let data = this.responseText;
-      //console.log(data)
-      var words = JSON.parse(data);
-      //alert(words['my']);
-
-      for (let i = 0; i < 20; i++) {
+  
+  fetch(file) //path should be in public
+  .then(response => { 
+        //console.log(response);
+        return response.json();
+  })
+  .then(data => {
+        //console.log(data); // already a json object, no need to parse
+        var words = data;
+        for (let i = 0; i < 20; i++) {
         if (i >= corpus.length) padding[i] = 0;
         // if text not in data
         else if (!words.hasOwnProperty(corpus[i])) padding[i] = 1;
         else padding[i] = words[corpus[i]];
       }
-
+      //console.log("Padding: ", padding);
       findLabel(padding);
-    }
-  }
+  })
+  .catch(err => {
+        // Do something for an error here
+        console.log("Error Reading data " + err);
+  });
 }
 
 async function findLabel(padding) {
-  if (language == 'vi') var path = "./chatbot_model_vi/model.json";
-  if (language == 'en') var path = "./chatbot_model_en/model.json"; 
-  if (language == 'other') var path = "./chatbot_model_en/model.json";
+  if (language == "vi") var path = "./model_vi/model.json";
+  if (language == "en") var path = "./model_en/model.json";
+  if (language == "other") var path = "./model_en/model.json";
   const model = await tf.loadLayersModel(path);
   let result = model.predict(tf.tensor(padding).reshape([-1, 20]));
   const predictedValue = result.arraySync()[0];
@@ -107,69 +207,91 @@ async function findLabel(padding) {
   let pie = 3 * (1 / predictedValue.length); // Define the smallest probabilities to get through
   console.log(result_max, 3 * (1 / predictedValue.length));
 
-  if (result_max > pie) console.log("Result is safe!");
-  else console.log("Tag is unknown");
-  let result_index = predictedValue.indexOf(
-    Math.max.apply(Math, predictedValue)
-  );
+  if (result_max > 0.9) {
+    console.log("Answer is accepted!");
+    let result_index = predictedValue.indexOf(
+      Math.max.apply(Math, predictedValue)
+    );
 
-  // Read label_encoder file
+    // Read label_encoder file
+    let file = "";
+    if (language == "vi") file = "./labels_encoder_vi.json"; // set file path
+    if (language == "en" || language == "other") file = "./labels_encoder_en.json";
 
-  // Create XMLHttpRequest object to open JSON file of Intents
-  var oXHR = new XMLHttpRequest();
+    fetch(file) //path should be in public
+    .then(response => { 
+          //console.log(response);
+          return response.json();
+    })
+    .then(data => {
+          //console.log(data); // already a json object, no need to parse
+          var labels = data;
+          let tag = getKeyByValue(labels, result_index);
 
-  // Initiate request.
-  oXHR.onreadystatechange = reportStatus;
-  if (language == "vi") oXHR.open("GET", "./data/vietnamese/labels_encoder.json", true); // get json file.
-  if (language == "en") oXHR.open("GET", "./data/english/labels_encoder.json", true); // get json file.
-  if (language == "other") oXHR.open("GET", "./data/english/labels_encoder.json", true); // get json file.  
-  oXHR.send();
+          findResponse(tag);
+    })
+    .catch(err => {
+          // Do something for an error here
+          console.log("Error Reading data " + err);
+    });
+  }
+  else {
+    // Read intents file
+    let file = "";
+    if (language == "vi") file = "./intents_vi.json"; // set file path
+    if (language == "en" || language == "other") file = "./intents_en.json";
 
-  function reportStatus() {
-    if (oXHR.readyState == 4) {
-      // Check if request is complete.
-      let data = this.responseText;
-      var labels = JSON.parse(data);
-      let tag = getKeyByValue(labels, result_index);
-
-      findResponse(tag);
-    }
+    fetch(file) //path should be in public
+    .then(response => { 
+          //console.log(response);
+          return response.json();
+    })
+    .then(data => {
+          //console.log(data); // already a json object, no need to parse
+          var mydata = data;
+          let len = mydata["intents"].length - 1;
+          let random = getRandomInt(mydata["intents"][len]["default"].length);
+          addMessage(mydata["intents"][len].default[random], "question");
+          console.log("Default answer is selected!");
+    })
+    .catch(err => {
+          // Do something for an error here
+          console.log("Error Reading data " + err);
+    });
   }
 }
 
 function findResponse(tag) {
   var response;
-  // Create XMLHttpRequest object to open JSON file of Intents
-  var oXHR = new XMLHttpRequest();
-
-  // Initiate request.
-  oXHR.onreadystatechange = reportStatus;
-  if (language == "vi") oXHR.open("GET", "./data/vietnamese/intents.json", true); // get json file.
-  if (language == "en") oXHR.open("GET", "./data/english/intents.json", true); // get json file.
-  if (language == "other") oXHR.open("GET", "./data/english/intents.json", true); // get json file.  
-  oXHR.send();
-
-  function reportStatus() {
-    if (oXHR.readyState == 4) {
-      // Check if request is complete.
-      var intents = this.responseText;
-      //console.log(intents)
-
-      var mydata = JSON.parse(intents);
-      //alert(mydata['intents'][0].tag);
-
-      for (let i = 0; i < mydata["intents"].length; i++) {
-        if (mydata["intents"][i].tag == tag) {
-          // change this latter
-          let random = getRandomInt(mydata["intents"][i]["responses"].length);
-          // expected output: an int between 0 and length of responses options
-          console.log(mydata["intents"][i].responses[random]);
-          response = mydata["intents"][i].responses[random];
-          addMessage(response, "question");
+  
+  // Read intents file
+  let file = "";
+  if (language == "vi") file = "./intents_vi.json"; // set file path
+  if (language == "en" || language == "other") file = "./intents_en.json";
+  
+  fetch(file) //path should be in public
+  .then(response => { 
+        //console.log(response);
+        return response.json();
+  })
+  .then(data => {
+        //console.log(data); // already a json object, no need to parse
+        var mydata = data;
+        for (let i = 0; i < mydata["intents"].length; i++) {
+          if (mydata["intents"][i].tag == tag) {
+            // change this latter
+            let random = getRandomInt(mydata["intents"][i]["responses"].length);
+            // expected output: an int between 0 and length of responses options
+            //console.log(mydata["intents"][i].responses[random]);
+            response = mydata["intents"][i].responses[random];
+            addMessage(response, "question");
+          }
         }
-      }
-    }
-  }
+  })
+  .catch(err => {
+        // Do something for an error here
+        console.log("Error Reading data " + err);
+  });
 }
 
 function askWhy(text) {
@@ -186,6 +308,19 @@ function addMessage(text, classSelector) {
 
   conversation.insertBefore(p, conversation.firstChild);
   conversation.scrollTop = conversation.scrollHeight;
+  
+  // Add new messages to database
+  const data = { email: email, chat: text, tag: classSelector };
+
+  fetch("/addChat", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
 }
 
 /* Make sure the app always fits in the viewport */
