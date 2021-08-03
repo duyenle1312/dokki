@@ -2,22 +2,20 @@
 <html lang="en">
   <head>
     <title>Hello from Dokki</title>
-    <link
-      id="favicon"
-      rel="icon"
-      href="./favicon.ico"
-      type="image/x-icon"
-    />
-
+    <link id="favicon" rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="An AI chatbot made with Glitch" />
+
     <!-- import the webpage's stylesheet -->
     <link rel="stylesheet" href="/style.css" />
 
     <!-- import the webpage's javascript file -->
-    <script src="/script.js" defer></script>
+    <script src="/client.js" defer></script>
     <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
   </head>
@@ -25,13 +23,13 @@
     <ul class="pages">
       <li class="chat page">
         <div class="container">
-          <h1>Dokki is here 🤖</h1>
+          <h3>Dokki is here 🤖</h3>
           <div class="conversation">
             <p class="chat question">
               Hello, I'm Dokki!
             </p>
           </div>
-          <form class="chatbox">
+          <form onsubmit="return false" class="chatbox">
             <input
               type="text"
               class="chatbox_inputfield"
@@ -47,7 +45,7 @@
             </button>
           </form>
           <p class="footer">
-            What you type isn't stored or sent anywhere.<br />This is just for
+            What you type isn't sent anywhere.<br />This is just for
             you. ❤
           </p>
         </div>
@@ -56,6 +54,10 @@
       <li class="login page">
         <div class="form">
           <h3 class="title">Welcome to Dokki</h3>
+          <h6 class="title6">
+            An AI chatbot that becomes a human friend<br />Let's sign up to get
+            started!
+          </h6>
           <!--ul class="para">
           <li>I'm Duyen Le, a college student in Bulgaria and my biggest dedication in life is making Artificial Intelligence to the next level.
 </li>
@@ -69,20 +71,24 @@
             </button-->
           <form onsubmit="return false" class="loginForm">
             <input
-              id="userName"
+              id="name"
+              name="name"
               class="inputField"
               type="text"
               maxlength="100"
               placeholder="Type your name"
+              required
             />
             <input
               id="email"
+              name="email"
               class="inputField"
-              type="text"
+              type="email"
               maxlength="100"
               placeholder="Type your email"
+              required
             />
-            <select id="lan" class="selection">
+            <select id="lan" class="selection" name="lan">
               <option value="en">English</option>
               <option value="vi">Vietnamese</option>
               <option value="other">Other</option>
@@ -92,6 +98,12 @@
               Submit
             </button>
           </form>
+          <!--section class="dreams">
+        <ul id="dreams"></ul>
+        <button class="update_button" id="submit-update">Update Data</button>
+        <button class="add_button" id="submit-update">Add Chat</button>
+        <button id="clear-dreams">Clear Users</button>
+      </section-->
         </div>
       </li>
     </ul>
