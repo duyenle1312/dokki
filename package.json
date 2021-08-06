@@ -3,8 +3,8 @@
   "//2": "https://docs.npmjs.com/files/package.json",
   "//3": "updating this file will download and update your packages",
   "name": "dokki-ai-chatbot",
-  "version": "0.0.1",
-  "description": "An AI chatbot using NLP with SQLite as a database management system",
+  "version": "3.0.1",
+  "description": "An AI chatbot that understands human emotions and could become our AI friend!",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
