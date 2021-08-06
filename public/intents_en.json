@@ -78,6 +78,9 @@
     {"tag": "jokes",
     "patterns": ["Could you please tell a joke?", "tell me a joke", "hey tell me a joke", "can you tell a joke", "could u tell a joke", "find me a joke, I'm bored!", "Do you have any jokes?", "Are you funny?", "Do you know how to make jokes?"],
     "responses": ["Why do the French like to eat snails so much? - They can't stand fast food.", "Why are eggs not very much into jokes? - Because they could crack up.", "What do you call a factory that makes satisfied products? - A satisfactory."]
+    },
+    {
+      "default": ["Could you tell me more about it?", "What...?", "Please elaborate more", "Hey do you know what is the color of the sky? 😉", "Oh wait! I got something to tell you!"]
     }
   ]
 }
