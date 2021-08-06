@@ -1,14 +1,8 @@
-//const credentials = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-//const { Firestore } = require("@google-cloud/firestore");
-//const db = new Firestore({ projectId: credentials.project_id, credentials });
+// run by the browser each time your view template referencing it is loaded
 
 var $loginPage = $(".login.page"); // The login page
 var $chatPage = $(".chat.page"); // The chat page
 var userName, email, language;
-
-// run by the browser each time your view template referencing it is loaded
-
-//const clearButton = document.querySelector("#clear-dreams");
 
 function ValidateEmail(email) {
   const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -59,57 +53,6 @@ $(document).ready(function() {
   });
 });
 
-/* Clear Users Data
-clearButton.addEventListener("click", event => {
-  fetch("/clearUsers", {})
-    .then(res => res.json())
-    .then(response => {
-      console.log("cleared dreams");
-    });
-});
-
-// When "Add Dreams" button is clicked
-$(".add_button").click(function() {
-  //store the user's entry in a variable
-  userName = document.getElementById("name").value;
-  email = document.getElementById("email").value;
-  language = document.getElementById("lan").value;
-  
-  // Add new chat
-  const data = { email: email, chat: language, tag: userName };
-
-  fetch("/addChat", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
-  })
-    .then(res => res.json())
-    .then(response => {
-      console.log(JSON.stringify(response));
-    });
-});
-
-// When "Update Data" button is clicked
-$(".update_button").click(function() {
-  //store the user's entry in a variable
-  userName = document.getElementById("name").value;
-  email = document.getElementById("email").value;
-  language = document.getElementById("lan").value;
-  
-  // Add new users
-  const data = { name: userName, email: email, language: language };
-
-  fetch("/updateData", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
-  })
-    .then(res => res.json())
-    .then(response => {
-      console.log(JSON.stringify(response));
-    });
-});*/
-
 // Chating functions part
 const form = document.forms[0];
 const inputField = form.elements["chatbox-input"];
@@ -123,12 +66,54 @@ inputField.addEventListener("input", function() {
 form.onsubmit = function(event) {
   event.preventDefault();
 
+  // Send message to Duyen's model
   addAnswer(inputField.value);
+  
+  /* Send new messages to OpenAI
+  addMessage(inputField.value, "answer");
+  const input = { email: email, chat: inputField.value, name: userName };
+
+  fetch("/addChatOpenAI", {
+    method: "POST",
+    body: JSON.stringify(input),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      let question = response.substring(6, response.length-1);
+      addMessage(question, "question");
+    });*/
 
   inputField.value = "";
   inputField.focus();
   sendButton.disabled = true;
 };
+
+function addMessage(text, classSelector) {
+  const conversation = document.querySelector(".conversation");
+
+  let p = document.createElement("p");
+  p.classList.add("chat");
+  p.classList.add(classSelector);
+  p.innerHTML = text;
+
+  conversation.insertBefore(p, conversation.firstChild);
+  conversation.scrollTop = conversation.scrollHeight;
+  
+  // Add new messages to database, when using openAI, delete the code after this line
+
+  const data = { email: email, chat: text, tag: classSelector };
+
+  fetch("/addChat", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
+}
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -207,39 +192,64 @@ async function findLabel(padding) {
   let pie = 3 * (1 / predictedValue.length); // Define the smallest probabilities to get through
   console.log(result_max, 3 * (1 / predictedValue.length));
 
-  //if (result_max > pie) console.log("Result is safe!");
-  //else console.log("Tag is unknown");
-  let result_index = predictedValue.indexOf(
-    Math.max.apply(Math, predictedValue)
-  );
+  if (result_max > 0.9) {
+    console.log("Answer is accepted!");
+    let result_index = predictedValue.indexOf(
+      Math.max.apply(Math, predictedValue)
+    );
 
-  // Read label_encoder file
-  let file = "";
-  if (language == "vi") file = "./labels_encoder_vi.json"; // set file path
-  if (language == "en" || language == "other") file = "./labels_encoder_en.json";
-  
-  fetch(file) //path should be in public
-  .then(response => { 
-        //console.log(response);
-        return response.json();
-  })
-  .then(data => {
-        //console.log(data); // already a json object, no need to parse
-        var labels = data;
-        let tag = getKeyByValue(labels, result_index);
+    // Read label_encoder file
+    let file = "";
+    if (language == "vi") file = "./labels_encoder_vi.json"; // set file path
+    if (language == "en" || language == "other") file = "./labels_encoder_en.json";
 
-        findResponse(tag);
-  })
-  .catch(err => {
-        // Do something for an error here
-        console.log("Error Reading data " + err);
-  });
+    fetch(file) //path should be in public
+    .then(response => { 
+          //console.log(response);
+          return response.json();
+    })
+    .then(data => {
+          //console.log(data); // already a json object, no need to parse
+          var labels = data;
+          let tag = getKeyByValue(labels, result_index);
+
+          findResponse(tag);
+    })
+    .catch(err => {
+          // Do something for an error here
+          console.log("Error Reading data " + err);
+    });
+  }
+  else {
+    // Read intents file
+    let file = "";
+    if (language == "vi") file = "./intents_vi.json"; // set file path
+    if (language == "en" || language == "other") file = "./intents_en.json";
+
+    fetch(file) //path should be in public
+    .then(response => { 
+          //console.log(response);
+          return response.json();
+    })
+    .then(data => {
+          //console.log(data); // already a json object, no need to parse
+          var mydata = data;
+          let len = mydata["intents"].length - 1;
+          let random = getRandomInt(mydata["intents"][len]["default"].length);
+          addMessage(mydata["intents"][len].default[random], "question");
+          console.log("Default answer is selected!");
+    })
+    .catch(err => {
+          // Do something for an error here
+          console.log("Error Reading data " + err);
+    });
+  }
 }
 
 function findResponse(tag) {
   var response;
   
-  // Read label_encoder file
+  // Read intents file
   let file = "";
   if (language == "vi") file = "./intents_vi.json"; // set file path
   if (language == "en" || language == "other") file = "./intents_en.json";
@@ -273,31 +283,6 @@ function askWhy(text) {
   generateTextAnswer(text);
 }
 
-function addMessage(text, classSelector) {
-  const conversation = document.querySelector(".conversation");
-  //writeData(text, classSelector);
-  let p = document.createElement("p");
-  p.classList.add("chat");
-  p.classList.add(classSelector);
-  p.innerHTML = text;
-
-  conversation.insertBefore(p, conversation.firstChild);
-  conversation.scrollTop = conversation.scrollHeight;
-  
-  // Add new messages to database
-  const data = { email: email, chat: text, tag: classSelector };
-
-  fetch("/addChat", {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: { "Content-Type": "application/json" }
-  })
-    .then(res => res.json())
-    .then(response => {
-      console.log(JSON.stringify(response));
-    });
-}
-
 /* Make sure the app always fits in the viewport */
 window.addEventListener("resize", fitAppToWindow);
 
@@ -309,3 +294,62 @@ function fitAppToWindow() {
 }
 
 fitAppToWindow();
+
+
+
+//const credentials = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+//const { Firestore } = require("@google-cloud/firestore");
+//const db = new Firestore({ projectId: credentials.project_id, credentials });
+
+/* Clear Users Data
+const clearButton = document.querySelector("#clear-dreams");
+
+clearButton.addEventListener("click", event => {
+  fetch("/clearUsers", {})
+    .then(res => res.json())
+    .then(response => {
+      console.log("cleared dreams");
+    });
+});
+
+// When "Add Dreams" button is clicked
+$(".add_button").click(function() {
+  //store the user's entry in a variable
+  userName = document.getElementById("name").value;
+  email = document.getElementById("email").value;
+  language = document.getElementById("lan").value;
+  
+  // Add new chat
+  const data = { email: email, chat: language, tag: userName };
+
+  fetch("/addChat", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
+});
+
+// When "Update Data" button is clicked
+$(".update_button").click(function() {
+  //store the user's entry in a variable
+  userName = document.getElementById("name").value;
+  email = document.getElementById("email").value;
+  language = document.getElementById("lan").value;
+  
+  // Add new users
+  const data = { name: userName, email: email, language: language };
+
+  fetch("/updateData", {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" }
+  })
+    .then(res => res.json())
+    .then(response => {
+      console.log(JSON.stringify(response));
+    });
+});*/
