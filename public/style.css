@@ -62,7 +62,7 @@ h3 {
   background-color: #ddd;
   border-radius: 1em 1em 0 1em;
   margin-left: auto;
-  text-align: right;
+  text-align: left;
 }
 
 .chatbox {
@@ -311,6 +311,7 @@ ul {
   border: 1px solid lightgrey;
   border-radius: 3px;
   font-size: 16px;
+  background-color: #FFFFFF;
 }
 
 .submit_button {
