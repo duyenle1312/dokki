@@ -189,7 +189,7 @@ async function findLabel(padding) {
   let result = model.predict(tf.tensor(padding).reshape([-1, 20]));
   const predictedValue = result.arraySync()[0];
   var result_max = Math.max.apply(Math, predictedValue);
-  let pie = 3 * (1 / predictedValue.length); // Define the smallest probabilities to get through
+  //let pie = 3 * (1 / predictedValue.length); // Define the smallest probabilities to get through
   console.log(result_max, 3 * (1 / predictedValue.length));
 
   if (result_max > 0.9) {
@@ -243,7 +243,7 @@ async function findLabel(padding) {
           // Do something for an error here
           console.log("Error Reading data " + err);
     });
-  }
+  };
 }
 
 function findResponse(tag) {
