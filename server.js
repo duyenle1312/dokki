@@ -31,7 +31,7 @@ db.serialize(() => {
     // insert default dreams
     db.serialize(() => {
       db.run(
-        'INSERT INTO Users (name, email, language) VALUES ("Duyen", "duyenle131202@gmail.com", "vi")'
+        'INSERT INTO Users (name, email, language) VALUES ("Duyen", "duyenle1312@gmail.com", "vi")'
       );
     });
   } else {

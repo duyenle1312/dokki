@@ -231,19 +231,20 @@ ul {
 /* Login Page */
 
 .login.page {
-  background-color: #0000fa;
+  background-color: #ffffff;
   height: 100%;
   width: 100%;
 }
 
 .login.page .form {
   height: 100px;
-  margin-top: -280px; /*original -150px*/
+  margin-top: -320px; /*original -150px*/
   position: absolute;
   display: inline-block;
   text-align: center;
   top: 50%;
   width: 100%;
+  line-height: 1.6;
 }
 
 /*.login.page .form {
@@ -258,7 +259,7 @@ ul {
 
 .login.page .title {
   font-size: 210%;
-  color: #fff;
+  color: #0000fa;
   font-weight: bold;  /*original is 100*/
   margin-top: 130px; /*150px if there is no description*/
   margin-bottom: 0px; /*18px if there is no description*/
@@ -266,16 +267,16 @@ ul {
 
 .login.page .title6 {
   font-size: 81%;
-  color: #fff;
+  color: #0000fa;
   font-weight: bold;
   margin-top: 18px;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
 }
 
 .loginForm {
   margin-bottom: 25px;
   padding: 15px;
-  background-color: cyan;
+  background-color: blue;
   display: inline-block;
   width: 100%;
   max-width: 340px;
@@ -317,9 +318,9 @@ ul {
 .submit_button {
   font-size: 17px;
   border-radius: 3px;
-  background-color: #23272b;
+  background-color: darkblue;
   border: 1px solid blue;
-  box-shadow: 2px 2px #044c;
+  box-shadow: 2px 2px black;
   cursor: pointer;
   display: block;
   margin: auto;
@@ -328,7 +329,7 @@ ul {
 }
 
 .submit_button:hover {
-  background-color: darkblue;
+  background-color: green;
 }
 
 .submit_button:active {
